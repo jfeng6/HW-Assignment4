@@ -1,17 +1,23 @@
 name: Deploy Docker Image to Server
 
 on:
-  workflow_run:
-    workflows: ["Build and Push Docker Image"]
-    types:
-      - completed
+  push:
+    branches:
+      - prod  # ✅ Triggers deployment only on "prod" branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Log in to DockerHub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Pull Latest Docker Image
+        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/hw-assignment4:latest
+
       - name: Deploy to DigitalOcean Server
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -19,12 +25,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "Logging into server..."
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/hw-assignment4:latest
-            
-            echo "Stopping and removing old container..."
             docker stop hw-assignment4 || true
             docker rm hw-assignment4 || true
-            
-            echo "Running new container..."
-            docker run -d --name hw-assignment4 -v /opt/assignment_outputs:/app/data ${{ secrets.DOCKERHUB_USERNAME }}/hw-assignment4:latest
+            docker run -d -p 8000:8000 --name hw-assignment4 \
+              -v /opt/assignment_outputs:/app/data \
+              ${{ secrets.DOCKERHUB_USERNAME }}/hw-assignment4:latest
