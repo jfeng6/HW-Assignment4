@@ -1,5 +1,8 @@
 import os
 from datetime import datetime
+from fastapi import FastAPI
+
+app = FastAPI()
 
 # Please customize the following variables
 USER_NAME = "zfeng6"
@@ -24,6 +27,17 @@ def say_hi(msg:str = "Hi!", file_directory:str = "./output/") -> None:
 
 def add_numbers(a:int, b:int) -> int:
     return a + b
+
+# Add FastAPI Endpoints
+@app.get("/")
+def read_root():
+    """Test API - Confirms FastAPI is running"""
+    return {"message": f"Hello, {USER_NAME}!"}
+
+@app.get("/add")
+def api_add_numbers(a: int, b: int):
+    """API to add two numbers"""
+    return {"result": add_numbers(a, b)}
 
 if __name__ == "__main__":
     say_hi()
