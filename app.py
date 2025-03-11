@@ -12,7 +12,7 @@ def say_hi(msg:str = "Hi!", file_directory:str = "/app/data/") -> None:
 
     # Define filename with timestamp
     file_name = f"outputfile_{USER_NAME}_{VERSION}_timestamp_{timestamp}.txt"
-    file_path = os.join(file_directory, file_name)
+    file_path = os.path.join(file_directory, file_name)
 
     # Ensure directory exists
     os.makedirs(file_directory, exist_ok=True)
