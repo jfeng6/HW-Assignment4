@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Run the tests with: pytest tests/test_app.py
 from ..app import add_numbers
 
